@@ -20,8 +20,9 @@ const { show, toggleShow, bottom, left, right, top } = defineProps(["show", "tog
 .modal-enter-from,
 .modal-leave-to {
     opacity: 0;
-    transform: translateY(100%);
+    transform: translateY(70%);
     scale: 0;
+    transform-origin: bottom;
 }
 .modal-enter-to,
 .modal-leave-from {

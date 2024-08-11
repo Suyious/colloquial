@@ -1,5 +1,6 @@
 <script setup>
 import Avatar from '@/components/avatar/Avatar.vue';
+import Carousel from '@/components/carousel/Carousel.vue';
 import Post from '@/components/post/Post.vue';
 import axios from 'axios';
 import { onMounted, ref, watch } from 'vue';
@@ -17,16 +18,6 @@ function onSearch() {
 
 const accounts = ref([]);
 const posts = ref([]);
-
-// FOR STYLING AND ANIMATING
-const wrapperRef = ref(null);
-const translatableRef = ref(null);
-const translationThreshold = ref("");
-
-onMounted(() => {
-    translationThreshold.value = -1 * (wrapperRef.value.offsetWidth - translatableRef.value.offsetWidth);
-    console.log(translationThreshold.value)
-})
 
 watch(
     route,
@@ -69,48 +60,54 @@ function getPosts() {
             
             <template v-if="Object.keys(route.query).length !== 0">
                 <section>
-                    <h3 class="font-[Oswald] font-[600] text-[1.3em] mb-4">ACCOUNTS</h3>
-                    <div ref="wrapperRef" class="overflow-hidden">
-                        <div ref="translatableRef" class="flex gap-4 w-max" :style="{ transform: `translateX(${translationThreshold})`}">
-                            <template v-if="accounts.length === 0">
-                                <div class="font-[Oswald] w-full text-center">
-                                    <h1 class="font-[600] uppercase text-[1.5em]">No Accounts Found</h1>
-                                    <p>No accounts matching your search were found. Try something else.</p>
-                                </div>
-                            </template>
-                            <template v-for="account in accounts" :key="account.id">
-                                <div class="flex flex-col items-center">
+                    <div class="flex items-baseline justify-between">
+                        <h3 class="font-[Oswald] font-[600] text-[1.3em] mb-4">ACCOUNTS</h3>
+                        <span class="font-[Oswald] font-[500] text-[1em] mb-4">{{ accounts.length }} Found</span>
+                    </div>
+                    <template v-if="accounts.length === 0">
+                        <div class="font-[Oswald] w-full text-center">
+                            <h1 class="font-[600] uppercase text-[1.5em]">No Accounts Found</h1>
+                            <p>No accounts matching your search were found. Try something else.</p>
+                        </div>
+                    </template>
+
+                    <Carousel v-if="accounts.length > 0" :threshold="9 * 16">
+                        <template v-for="account in accounts" :key="account.id">
+                            <div class="flex flex-col items-center">
+                                <RouterLink :to="{ name: 'profile', params: { id: account.id }}">
                                     <Avatar width="8em"
                                         src="https://images.unsplash.com/photo-1716234240817-6c85af852899?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" />
+                                </RouterLink>
+                                <RouterLink :to="{ name: 'profile', params: { id: account.id }}">
                                     <h2 class="font-[Oswald] font-[500] text-[1.2em] mb-2">{{ account.name }}</h2>
-                                    <button class="bg-black text-white font-[Oswald] font-[500] text-[0.8em] uppercase px-8 py-1 mb-1">Add Friend</button>
-                                    <RouterLink :to="{ name: 'profile', params: { id: account.id }}"
-                                        class="font-[Oswald] font-[500] uppercase text-[0.8em]">View Profile</RouterLink>
-                                </div>
-                            </template>
-                        </div>
-                    </div>
-                    <div class="font-[Oswald] flex justify-end items-center gap-4 mt-4">
-                        <button class="bg-black text-white px-4 py-1">Precious</button>
-                        <div class="">1 / 10</div>
-                        <button class="bg-black text-white px-4 py-1">Next</button>
-                    </div>
+                                </RouterLink>
+                                <button class="bg-black text-white font-[Oswald] font-[500] text-[0.8em] uppercase px-8 py-1 mb-1">Follow</button>
+                                <RouterLink :to="{ name: 'profile', params: { id: account.id }}"
+                                    class="font-[Oswald] font-[500] uppercase text-[0.8em]">View Profile</RouterLink>
+                            </div>
+                        </template>
+                    </Carousel>
+                    
                 </section>
     
                 <section class="pt-8">
-                    <h3 class="font-[Oswald] font-[600] text-[1.3em] mb-4">POSTS</h3>
+                    <div class="flex items-baseline justify-between">
+                        <h3 class="font-[Oswald] font-[600] text-[1.3em] mb-4">POSTS</h3>
+                        <span class="font-[Oswald] font-[500] text-[1em] mb-4">{{ posts.length }} Found</span>
+                    </div>
+                    <template v-if="posts.length === 0">
+                        <div class="font-[Oswald] w-full text-center">
+                            <h1 class="font-[600] uppercase text-[1.5em]">No Posts Found</h1>
+                            <p>No posts matching your search were found. Try something else.</p>
+                        </div>
+                    </template>
                     <div class="flex flex-col gap-4">
-                        <template v-if="posts.length === 0">
-                            <div class="font-[Oswald] w-full text-center">
-                                <h1 class="font-[600] uppercase text-[1.5em]">No Posts Found</h1>
-                                <p>No posts matching your search were found. Try something else.</p>
-                            </div>
-                        </template>
                         <template v-for="post in posts" :key="post.id">
-                            <Post :author="post.created_by"
+                            <Post
+                                :post="post"
                                 profile-picture="https://images.unsplash.com/photo-1716545617942-1845033e0bc8?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
                                 content="https://images.unsplash.com/photo-1716545617942-1845033e0bc8?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                                :caption="post.body" />
+                                />
                         </template>
                     </div>
                 </section>

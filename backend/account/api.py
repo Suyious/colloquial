@@ -44,36 +44,8 @@ def user(request, id):
         user_to_get = User.objects.get(pk=id)
     except User.DoesNotExist:
         return JsonResponse({'message': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
-
-    current_user = request.user
-
-    followers = current_user.followers.count()
-    following = current_user.following.count()
-    is_following = False
-    is_follower = False
-    sent_request = False
-    received_request = False
-
-    if current_user.following.filter(pk=user_to_get.pk).exists():
-        is_following = True
-
-    if current_user.sent_requests.filter(to_user=user_to_get.pk).exists():
-        sent_request = True
-    
-    if current_user.followers.filter(pk=user_to_get.pk).exists():
-        is_follower = True
-
-    if current_user.received_requests.filter(from_user=user_to_get.pk).exists():
-        received_request = True
-
-    serializer = UserSerializer(user_to_get)
+    serializer = UserSerializer(user_to_get, context={'request': request})
     response_data = serializer.data
-    response_data['followers'] = followers
-    response_data['following'] = following
-    response_data['is_following'] = is_following
-    response_data['is_follower'] = is_follower
-    response_data['sent_request'] = sent_request
-    response_data['received_request'] = received_request
 
     return JsonResponse(response_data, safe=False)
 
@@ -86,7 +58,7 @@ def users_list(request):
         users = None
 
     if users:
-        serializer = UserSerializer(users, many=True)
+        serializer = UserSerializer(users, context={'request': request}, many=True)
         return JsonResponse(serializer.data, safe=False)
     else:
         return JsonResponse({'message': 'Not Found'}, status=status.HTTP_404_NOT_FOUND)
