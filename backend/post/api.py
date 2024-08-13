@@ -1,4 +1,5 @@
 from django.http import JsonResponse
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from rest_framework import status
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 
@@ -10,6 +11,7 @@ from .forms import PostForm, CommentForm
 def post_list(request):
     user_id = request.GET.get('user', None)
     keyword = request.GET.get('keyword', None)
+    page_number = request.GET.get('page', 1)
 
     filters = {}
     if user_id:
@@ -23,12 +25,33 @@ def post_list(request):
         posts = Post.objects.filter(q_object)
     else:
         posts = Post.objects.all()
+    
+    paginator = Paginator(posts, 10)
 
-    if posts:
-        serializer = PostSerializer(posts, many=True, context={'request': request})
-        return JsonResponse({ 'data': serializer.data })
-    else:
-        return JsonResponse({'message': 'Not Found'}, status=status.HTTP_404_NOT_FOUND)
+    try:
+        page = paginator.page(page_number)
+    except PageNotAnInteger:
+        return JsonResponse({'message': 'Invalid page number'}, status=status.HTTP_400_BAD_REQUEST)
+    except EmptyPage:
+        return JsonResponse({'message': 'No posts found'}, status=status.HTTP_404_NOT_FOUND)
+
+    serializer = PostSerializer(page, many=True, context={'request': request})
+    return JsonResponse({
+        'data': serializer.data,
+        'page': page.number,
+        'total': paginator.num_pages,
+    })
+
+@api_view(['GET'])
+def post_get(request, id):
+    try:
+        post = Post.objects.get(id=id)
+    except Post.DoesNotExist:
+        return JsonResponse({ 'message': 'Post not found' }, status=status.HTTP_404_NOT_FOUND)
+    
+    serializer = PostSerializer(post, context = { 'request': request })
+    return JsonResponse(serializer.data)
+
 
 @api_view(['POST'])
 def post_create(request):

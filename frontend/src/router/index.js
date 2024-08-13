@@ -5,6 +5,7 @@ import ChatView from '@/views/ChatView.vue'
 import NotificationsView from '@/views/NotificationsView.vue'
 import SearchView from '@/views/SearchView.vue'
 import ProfileView from '@/views/ProfileView.vue'
+import PostView from '@/views/PostView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -19,6 +20,7 @@ const router = createRouter({
         { path: '/notifications', name: 'notifications', component: NotificationsView },
         { path: '/search', name: 'search', component: SearchView },
         { path: '/user/:id', name: 'profile', component: ProfileView },
+        { path: '/post/:id', name: 'post', component: PostView },
       ]
     },
     {

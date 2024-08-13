@@ -9,4 +9,5 @@ urlpatterns = [
     path('<str:id>/comment/', api.comment_add, name='comment_add'),
     path('comment/<str:id>/edit', api.comment_edit, name='comment_edit'),
     path('comment/<str:id>/delete', api.comment_delete, name='comment_delete'),
+    path('<str:id>/', api.post_get, name='post_get'),
 ]
