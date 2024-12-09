@@ -34,6 +34,7 @@ class Like(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
+        ordering = ('-created_at',)
         unique_together = ('user', 'post')
 
 class Comment(models.Model):
@@ -42,3 +43,7 @@ class Comment(models.Model):
     user = models.ForeignKey(User, related_name='comments', on_delete=models.CASCADE)
     body = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ('-created_at',)
+

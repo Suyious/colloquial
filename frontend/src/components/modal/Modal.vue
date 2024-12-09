@@ -10,7 +10,7 @@ const { show, toggleShow, bottom, left, right, top, z, bg }
         <div v-if="show" class="fixed top-0 left-0 w-full h-full z-[98]" :style="{ zIndex: z || 98}">
             <div @click="toggleShow" class="absolute top-0 left-0 w-full h-full" :style="{ background: bg }"></div>
             <div class="absolute translate-x-[-50%]"
-                 :style="{bottom: bottom+'', top: top, left: left, right: right}">
+                 :style="{bottom: bottom, top: top, left: left, right: right}">
                 <slot></slot>
             </div>
         </div>    

@@ -11,7 +11,9 @@ from .serializers import UserSerializer
 @permission_classes([])
 def signup(request):
     data = request.data
-    message = 'success'
+
+    if User.objects.filter(email=data.get('email')).exists():
+        return JsonResponse({'message': 'Email already exists'}, status=status.HTTP_400_BAD_REQUEST)
 
     form = SignupForm({
         'email': data.get('email'),
@@ -22,12 +24,12 @@ def signup(request):
 
     if form.is_valid():
         form.save()
-
         # send verification email
-    else:
-        message = 'error'
+        return JsonResponse({'status': 'success', 'message': 'Registration successful'})
 
-    return JsonResponse({ 'status': message })
+    errors = form.errors.as_json()
+    print(errors)
+    return JsonResponse({'status': 'error', 'errors' : errors }, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['GET'])

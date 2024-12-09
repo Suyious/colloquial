@@ -1,6 +1,10 @@
 <script setup>
 import axios from 'axios';
 import Avatar from '../avatar/Avatar.vue'
+import { ref } from 'vue';
+
+const emit = defineEmits('clickPost')
+const commentBody = ref("");
 
 const props = defineProps({
     post: Object,
@@ -32,11 +36,25 @@ function unlike() {
         })
 }
 
+function comment() {
+    if(commentBody.length === 0) return;
+    axios.post(`api/posts/${props.post.id}/comment/`, 
+        { body: commentBody.value }
+    )
+        .then(response => {
+            console.log("Response: ", response);
+            commentBody.value = "";
+        })
+        .catch(error => {
+            console.log(error);
+        })
+}
+
 </script>
 
 <template>
     <div class="w-[40em] max-w-[95vw] min-h-10em sm:h-[calc(100vh_-_10em)] border-2 border-black rounded-lg relative">
-        <div class="relative w-full h-full border-2 border-white rounded-lg overflow-hidden">
+        <div @click="$emit('clickPost')" class="relative w-full h-full border-2 border-white rounded-lg overflow-hidden">
             <img class="w-full h-full object-cover cursor-pointer" :src="props.content" alt="Content">
             <div class="absolute bottom-0 left-0 w-full h-36 bg-[linear-gradient(0deg,_rgba(0,_0,_0)_0%,_rgba(0,_0,_0,_0)_100%)]"></div>
         </div>
@@ -50,8 +68,8 @@ function unlike() {
         <div class="sm:absolute sm:bottom-4 sm:right-4 bg-white p-2 min-w-[10em] flex items-center gap-4 rounded-lg">
             <button v-if="!post.is_liked" class="font-[Oswald] font-[500] bg-black text-white text-sm px-4 py-1 rounded-md" @click="like">Like {{ post.likes_count }}</button>
             <button v-else class="font-[Oswald] font-[500] bg-black text-white text-sm px-4 py-1 rounded-md" @click="unlike">Unlike {{ post.likes_count }}</button>
-            <form>
-                <input class="font-[Oswald] max-w-full outline-none" placeholder="Leave a Comment..."/>
+            <form @submit.prevent="() => comment(commentBody)">
+                <input v-model="commentBody" class="font-[Oswald] max-w-full outline-none" placeholder="Leave a Comment..."/>
             </form>
         </div>
     </div>

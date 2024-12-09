@@ -42,15 +42,23 @@ def post_list(request):
         'total': paginator.num_pages,
     })
 
-@api_view(['GET'])
-def post_get(request, id):
+@api_view(['GET', 'DELETE'])
+def post_get_delete(request, id):
     try:
         post = Post.objects.get(id=id)
     except Post.DoesNotExist:
-        return JsonResponse({ 'message': 'Post not found' }, status=status.HTTP_404_NOT_FOUND)
-    
-    serializer = PostSerializer(post, context = { 'request': request })
-    return JsonResponse(serializer.data)
+        return JsonResponse({'message': 'Post not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'GET':
+        serializer = PostSerializer(post, context = { 'request': request })
+        return JsonResponse(serializer.data)
+
+
+    if post.created_by != request.user:
+        return JsonResponse({'message': 'You cannot delete this post'}, status=status.HTTP_403_FORBIDDEN)
+
+    post.delete()
+    return JsonResponse({'message': 'Post deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
 
 
 @api_view(['POST'])
@@ -118,7 +126,7 @@ def comment_add(request, id): # id -> post_id
     except Post.DoesNotExist:
         return JsonResponse({'message': 'Post not found'}, status=status.HTTP_404_NOT_FOUND)
     
-    form = CommentForm(request.POST)
+    form = CommentForm(request.data)
     if form.is_valid():
         comment = form.save(commit=False)
         comment.post = post
@@ -162,12 +170,27 @@ def comment_delete(request, id): # id -> comment_id
     return JsonResponse(status=status.HTTP_204_NO_CONTENT)
 
 @api_view(['GET'])
-def get_post_comments(request, post_id):
+def get_post_comments(request, id):
+    page_number = request.GET.get('page', 1)
+
     try:
-        post = Post.objects.get(id=post_id)
+        post = Post.objects.get(id=id)
     except Post.DoesNotExist:
         return JsonResponse({'message': 'Post not found'}, status=status.HTTP_404_NOT_FOUND)
 
     comments = post.comments.all()
-    serializer = CommentSerializer(comments, many=True)
-    return JsonResponse(serializer.data, safe=False)
+    paginator = Paginator(comments, 10)
+
+    try:
+        page = paginator.page(page_number)
+    except PageNotAnInteger:
+        return JsonResponse({'message': 'Invalid page number'}, status=status.HTTP_400_BAD_REQUEST)
+    except EmptyPage:
+        return JsonResponse({'message': 'No posts found'}, status=status.HTTP_404_NOT_FOUND)
+
+    serializer = CommentSerializer(page, many=True, context={'request': request})
+    return JsonResponse({
+        'data': serializer.data,
+        'page': page.number,
+        'total': paginator.num_pages,
+    })

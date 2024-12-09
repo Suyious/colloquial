@@ -9,7 +9,7 @@ class PostSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Post
-        fields = ('id', 'body', 'created_by', 'created_ago', 'likes_count', 'is_liked', )
+        fields = ('id', 'body', 'created_by', 'created_ago', 'likes_count', 'is_liked', 'comments_count', )
     
     def get_is_liked(self, obj):
         request = self.context.get('request')
@@ -18,7 +18,8 @@ class PostSerializer(serializers.ModelSerializer):
         return False
 
 class CommentSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only = True)
 
     class Meta:
         model = Comment
-        fields = ('id', 'user', 'body', 'created_at')
+        fields = ('id', 'user', 'body', 'created_at', )
