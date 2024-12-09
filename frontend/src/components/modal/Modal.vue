@@ -3,14 +3,30 @@
 const { show, toggleShow, bottom, left, right, top, z, bg }
     = defineProps(["show", "toggleShow", "bottom", "left", "right", "top", "z", "bg"]);
 
+function translationX(bottom, top) {
+    if(top === "50%") return -50
+    if(bottom === "50%") return 50
+    return 0
+}
+
+function translationY(left, right) {
+    if(right === "50%") return 50
+    if(left === "50%") return -50
+    return 0
+}
+
 </script>
+
 
 <template>
     <Transition name="modal">
         <div v-if="show" class="fixed top-0 left-0 w-full h-full z-[98]" :style="{ zIndex: z || 98}">
             <div @click="toggleShow" class="absolute top-0 left-0 w-full h-full" :style="{ background: bg }"></div>
-            <div class="absolute translate-x-[-50%]"
-                 :style="{bottom: bottom, top: top, left: left, right: right}">
+            <div class="absolute"
+                 :style="{
+                    bottom: bottom, top: top, left: left, right: right,
+                    transform: `translate(${translationY(left,right)}%,${translationX(bottom,top)}%)`
+                }">
                 <slot></slot>
             </div>
         </div>    
