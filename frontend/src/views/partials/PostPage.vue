@@ -6,7 +6,9 @@ import { onMounted, ref } from 'vue';
 const { postId } = defineProps(["postId"]);
 
 const post = ref(null);
+const post_loading = ref(false);
 const comments = ref(null);
+const comments_loading = ref(false);
 const comments_page_number = ref(null);
 
 const cover = ref(false);
@@ -23,11 +25,14 @@ onMounted(() => {
 })
 
 function getPost() {
+    post_loading.value = true;
     axios.get(`/api/posts/${postId}`)
         .then(response => {
             post.value = response.data;
+            post_loading.value = false;
         }).catch(error => {
             console.log(error);
+            // post_loading.value = false;
         })
 }
 
@@ -58,7 +63,15 @@ function submitComment() {
 </script>
 
 <template>
-    <main v-if="post" class="h-full flex">
+    <main class="h-full" v-if="post_loading">
+        <div class="font-[Oswald] h-full w-full flex justify-center items-center">
+            <div class="text-center">
+                <h1 class="text-lg font-[500]">Loading Your post...</h1>
+                <p class="text-sm">Please wait while the post is loading</p>
+            </div>
+        </div>
+    </main>
+    <main v-else-if="post" class="h-full flex">
         <!-- LEFT (Post) -->
         <div class="w-1/2 h-full min-h-[100] p-5">
             <div class="h-full w-full flex flex-col gap-3">
@@ -70,8 +83,8 @@ function submitComment() {
                         {{ cover ? "Contain" : "Cover" }}
                     </button>
                 </div>
-                <div class="h-[8em] w-full flex flex-col">
-                    <div class="flex-1">
+                <div class="h-[8em] w-full gap-1 flex flex-col">
+                    <div class="flex-1 overflow-hidden">
                         <h1 class="font-[Oswald] text-[1.2em]">{{ post.body }}</h1>
                     </div>
                     <div class="flex">
@@ -88,7 +101,8 @@ function submitComment() {
                                         {{ post.created_by.name }}</h4>
 
                                 </RouterLink>
-                                <p class="font-[Oswald] font-[500] text-[0.8em]">{{ post.created_ago === '0\u00A0minutes' ? "Right Now" : post.created_ago + " ago" }}</p>
+                                <p class="font-[Oswald] font-[400] text-[0.8em]">{{ post.created_ago ===
+                                    '0\u00A0minutes' ? "Right Now" : post.created_ago + " ago" }}</p>
                             </div>
                         </div>
                         <div class="flex gap-2 items-end">
@@ -109,7 +123,15 @@ function submitComment() {
             <div class="h-[15em] w-1 bg-gray-500 absolute top-1/2 -translate-y-1/2 left-0"> </div>
             <div class="h-full w-full flex flex-col gap-4">
                 <div class="w-full flex-1 overflow-auto">
-                    <template v-if="comments && comments.length !== 0" v-for="comment in comments" :key="comment.id">
+                    <template v-if="comments_loading">
+                        <div class="font-[Oswald] h-full w-full flex justify-center items-center">
+                            <div class="text-center">
+                                <h1 class="text-lg font-[500]">The Comments are loading...</h1>
+                                <p class="text-sm">Please wait while the comments are fetched</p>
+                            </div>
+                        </div>
+                    </template>
+                    <template v-else-if="comments && comments.length !== 0" v-for="comment in comments" :key="comment.id">
                         <div class="font-[Oswald] flex gap-3 mb-4">
                             <RouterLink :to="{ name: 'profile', params: { id: post.created_by.id } }">
                                 <Avatar width="2.5em"
@@ -121,7 +143,8 @@ function submitComment() {
                                     <RouterLink :to="{ name: 'profile', params: { id: post.created_by.id } }">
                                         <h3 class="font-[600] text-[0.9em]">{{ comment.user.name }}</h3>
                                     </RouterLink>
-                                    <p class="text-[0.6em]">{{ comment.created_ago === '0\u00A0minutes' ? "Right Now" : comment.created_ago + " ago" }}</p>
+                                    <p class="text-[0.6em]">{{ comment.created_ago === '0\u00A0minutes' ? "Right Now" :
+                                        comment.created_ago + " ago" }}</p>
                                 </div>
                                 <p>{{ comment.body }}</p>
                             </div>
@@ -136,7 +159,8 @@ function submitComment() {
                         </div>
                     </template>
                 </div>
-                <form @submit.prevent="() => submitComment(comment)" class="h-[6em] w-full bg-gray-300 rounded-lg p-3 flex gap-4">
+                <form @submit.prevent="() => submitComment(comment)"
+                    class="h-[6em] w-full bg-gray-300 rounded-lg p-3 flex gap-4">
                     <Avatar width="3em"
                         src="https://images.unsplash.com/photo-1716545617942-1845033e0bc8?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D">
                     </Avatar>
