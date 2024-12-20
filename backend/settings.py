@@ -18,8 +18,8 @@ SECRET_KEY = 'django-insecure-hsfx--t(0$b0u_^r()n#o-m0=y-=is1!w@q^8monk(6_g-pf!2
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
+ALLOWED = os.environ.get("ALLOWED_HOSTS")
+ALLOWED_HOSTS = [] + ALLOWED.split(" ") if ALLOWED else []
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(days=30),
@@ -36,13 +36,15 @@ REST_FRAMEWORK = {
     )
 }
 
+CORS_ORIGINS = os.environ.get("CORS_ORIGIN", )
+
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
-]
+] + (CORS_ORIGINS.split(" ") if CORS_ORIGINS else [])
 
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:5173",
-]
+] + (CORS_ORIGINS.split(" ") if CORS_ORIGINS else [])
 
 AUTH_USER_MODEL = 'account.User'
 
