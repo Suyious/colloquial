@@ -47,3 +47,6 @@ class Comment(models.Model):
     class Meta:
         ordering = ('-created_at',)
 
+    def created_ago(self):
+        return timesince(self.created_at)
+

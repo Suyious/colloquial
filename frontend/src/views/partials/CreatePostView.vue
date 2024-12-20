@@ -4,24 +4,35 @@ import { ref } from 'vue';
 
 const emit = defineEmits('cancelPost')
 const body = ref("");
-
-function submitPost() {
-  console.log("submit form", body.value);
-
-  axios.post('/api/posts/create/', {
-    body: body.value,
-  })
-  .then(response => {
-    console.log('data', response.data);
-    emit('cancelPost');
-  })
-  .catch(error => {
-    console.log("error", error);
-  })
-}
-
 const fileInput = ref(null);
 const imageSrc = ref(null);
+
+const uploading = ref(false);
+
+function submitPost() {
+  uploading.value = true;
+  const formData = new FormData();
+
+  formData.append('body', body.value);
+  if (fileInput.value) {
+    formData.append('image', fileInput.value.files[0]);
+  }
+
+  axios.post('/api/posts/', formData, {
+    headers: {
+      "Content-Type": "multipart/form-data"
+    }
+  })
+    .then(response => {
+      console.log('data', response.data);
+      uploading.value = false;
+      emit('cancelPost');
+    })
+    .catch(error => {
+      uploading.value = false;
+      console.log("error", error);
+    })
+}
 
 function onFileInput() {
   fileInput.value.click();
@@ -71,7 +82,7 @@ const handleFileChange = (event) => {
         <button @click="onFileInput" type="button">Attach</button>
         <div class="flex gap-8">
           <button type="button" @click="$emit('cancelPost')">Cancel</button>
-          <button type="submit" class="bg-black text-white px-8 py-2 rounded-md">Post</button>
+          <button :disabled="uploading" type="submit" class="bg-black text-white px-8 py-2 rounded-md">{{ uploading ? "Pending" : "Post" }}</button>
         </div>
       </div>
     </form>

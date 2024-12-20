@@ -13,7 +13,7 @@ const props = defineProps({
 })
 
 function like() {
-    axios.post(`api/posts/${props.post.id}/like/`)
+    axios.post(`api/posts/${props.post.id}/likes/`)
         .then(response => {
             props.post.is_liked = true;
             props.post.likes_count += 1;
@@ -25,7 +25,7 @@ function like() {
 }
 
 function unlike() {
-    axios.delete(`api/posts/${props.post.id}/unlike/`)
+    axios.delete(`api/posts/${props.post.id}/likes/`)
         .then(response => {
             props.post.is_liked = false;
             props.post.likes_count -= 1;
@@ -38,7 +38,7 @@ function unlike() {
 
 function comment() {
     if(commentBody.length === 0) return;
-    axios.post(`api/posts/${props.post.id}/comment/`, 
+    axios.post(`api/posts/${props.post.id}/comments/`, 
         { body: commentBody.value }
     )
         .then(response => {

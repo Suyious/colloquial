@@ -7,5 +7,7 @@ const route = useRoute();
 </script>
 
 <template>
-    <PostPage :post-id="route.params.id"/>
+    <main class="w-9/12 m-auto h-[78vh]">
+        <PostPage :post-id="route.params.id"/>
+    </main>
 </template>

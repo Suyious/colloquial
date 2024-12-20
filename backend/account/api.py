@@ -28,7 +28,6 @@ def signup(request):
         return JsonResponse({'status': 'success', 'message': 'Registration successful'})
 
     errors = form.errors.as_json()
-    print(errors)
     return JsonResponse({'status': 'error', 'errors' : errors }, status=status.HTTP_400_BAD_REQUEST)
 
 

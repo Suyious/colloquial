@@ -19,7 +19,6 @@ onMounted(() => {
 function getFeed() {
     axios.get('/api/posts/')
         .then(response => {
-            // console.log(response.data);
             posts.value = response.data.data;
         }).catch(error => {
             console.log(error);
@@ -43,6 +42,7 @@ function openModal(id) {
     window.addEventListener("popstate", closeModal)
     document.body.style.overflow = 'hidden';
 }
+
 function closeModal() {
     currentPost.value = null;
     history.pushState({}, "", "/");
