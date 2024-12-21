@@ -73,7 +73,7 @@ function submitComment() {
     </main>
     <main v-else-if="post" class="h-full flex">
         <!-- LEFT (Post) -->
-        <div class="w-1/2 h-full min-h-[100] p-5">
+        <div class="lg:w-1/2 h-full min-h-[100] p-5">
             <div class="h-full w-full flex flex-col gap-3">
                 <div class="w-full flex-1 rounded-lg bg-gray-300 relative overflow-hidden">
                     <img class="w-full h-full" alt="Content" :style="{ objectFit: cover ? 'cover' : 'contain' }"
@@ -119,7 +119,7 @@ function submitComment() {
             </div>
         </div>
         <!-- RIGHT (Comments) -->
-        <div class="w-1/2 h-full p-5 relative">
+        <div class="hidden lg:block w-1/2 h-full p-5 relative">
             <div class="h-[15em] w-1 bg-gray-500 absolute top-1/2 -translate-y-1/2 left-0"> </div>
             <div class="h-full w-full flex flex-col gap-4">
                 <div class="w-full flex-1 overflow-auto">
